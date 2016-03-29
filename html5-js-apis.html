@@ -24,7 +24,9 @@
     <div id="mapContainer"></div>
     <div id="address">Aktueller Standort: </div><br><br>
     <p><b>Fullscreen API</b></p>
-    <button onclick="launchIntoFullscreen(document.getElementById('mapContainer'));">Launch Fullscreen</button>
+    <button id="launchFS">Launch Fullscreen</button>
+    
+    
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>    
     <script>
@@ -113,6 +115,9 @@
             element.msRequestFullscreen();
           }
         }
+        $("#launchFS").click(function(){
+            launchIntoFullscreen(document.getElementById('mapContainer'));
+        });
 
     </script>
 </body>
