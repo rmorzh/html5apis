@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+	<title>Geolocation API</title>
+    <style type="text/css">
+        html,
+        body {
+            height: 100% ;
+            margin: 0px 0px 0px 0px ;
+            overflow: hidden ;
+            padding: 0px 0px 0px 0px ;
+            width: 100% ;
+            }
+        #mapContainer {
+            height: 50% ;
+            width: 50% ;
+            }
+    </style>
+</head>
+<body>
+    <p><b>Geolocation API</b></p>
+    <div id="mapContainer"></div>
+    <div id="address">Aktueller Standort: </div><br><br>
+    <p><b>Fullscreen API</b></p>
+    <button onclick="launchIntoFullscreen(document.getElementById('mapContainer'));">Launch Fullscreen</button>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>    
+    <script>
+        // Geolocation API
+        var mapContainer = $( "#mapContainer" );
+        map = new google.maps.Map(
+            mapContainer[ 0 ],
+            {
+                zoom: 11,
+                center: new google.maps.LatLng(
+                    47.376887,
+                    8.541694
+                ),
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            }
+        );
+        function getAddress(latitude,longitude){
+            var geocoder = new google.maps.Geocoder;
+            geocoder.geocode({'location': {lat:latitude,lng:longitude}}, function(results, status) {
+                $("#address").text('Aktueller Standort: '+results[0].formatted_address);
+            });
+        }
+        function addMarker( latitude, longitude, label ){
+            var marker = new google.maps.Marker({
+                map: map,
+                position: new google.maps.LatLng(
+                    latitude,
+                    longitude
+                ),
+                title: (label || ""),
+            });
+            getAddress(latitude,longitude);
+            return( marker );
+        }
+        
+        if (navigator.geolocation) {
+            var locationMarker = null;
+            navigator.geolocation.getCurrentPosition(function(pos) {
+                if (locationMarker){
+                    return;
+                }
+                locationMarker = addMarker(
+                    pos.coords.latitude,
+                    pos.coords.longitude,
+                    "Initial Position"
+                );    
+            },function (err) {
+                console.warn('ERROR(' + err.code + '): ' + err.message);
+            },{
+                    timeout: (5 * 1000),
+                    maximumAge: (1000 * 60 * 15),
+                    enableHighAccuracy: true
+                });
+    
+            var positionTimer = navigator.geolocation.watchPosition(
+                function( pos ){
+                    console.log( "Newer Position Found" );
+                    locationMarker = addMarker(
+                        pos.coords.latitude,
+                        pos.coords.longitude,
+                        "Newer Position"
+                    );
+                }
+            );
+           // If the position hasn't updated within 5 minutes, stop
+            // monitoring the position for changes.
+
+            setTimeout(
+                function(){
+                    // Clear the position watcher.
+                    navigator.geolocation.clearWatch( positionTimer );
+                },
+                (1000 * 60 * 5)
+            );
+        }
+        
+        // Fullscreen API
+        function launchIntoFullscreen(element) {
+          if(element.requestFullscreen) {
+            element.requestFullscreen();
+          } else if(element.mozRequestFullScreen) {
+            element.mozRequestFullScreen();
+          } else if(element.webkitRequestFullscreen) {
+            element.webkitRequestFullscreen();
+          } else if(element.msRequestFullscreen) {
+            element.msRequestFullscreen();
+          }
+        }
+
+    </script>
+</body>
+</html>
